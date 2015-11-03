@@ -4,6 +4,7 @@
   "description": "multiplayer snake",
   "main": "index.js",
   "scripts": {
+    "build:watch": "webpack --colors --progress --watch --config webpack.config.devSockets",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
