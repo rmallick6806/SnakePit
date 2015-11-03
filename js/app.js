@@ -13,8 +13,8 @@ var controls = {
 // Game objects
 function Snake() {
 	var self = this;
-	this.x = canvas.width / 2;
-	this.y = canvas.height / 2;
+	this.headX = canvas.width / 2;
+	this.headY = canvas.height / 2;
 	this.segmentSize = 10;
 	this.initialLength = 5;
 	this.segments = [];
@@ -24,8 +24,8 @@ function Snake() {
 			.toArray()
 			.map(function(segment, index){
 				self.segments.push({
-					x: self.x - (index * (self.segmentSize + 1)),
-					y: self.y
+					x: self.headX - (index * (self.segmentSize + 1)),
+					y: self.headY
 				});
 			});
 	}
