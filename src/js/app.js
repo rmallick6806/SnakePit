@@ -1,3 +1,6 @@
+import {Lazy, as _} from 'lazy.js';
+import {FastList as FL} from 'fast-list';
+
 // Create the canvas
 var rAF = window.requestAnimationFrame;
 var canvas = document.getElementById('snakePit');
@@ -12,29 +15,48 @@ var controls = {
 
 // Game objects
 function Snake() {
-	var self = this;
+	var snake = this;
+	this.speed = 3;
+	this.head = {
+		x: canvas.width / 2,
+		y: canvas.height / 2
+	};
 	this.headX = canvas.width / 2;
 	this.headY = canvas.height / 2;
 	this.segmentSize = 10;
-	this.initialLength = 5;
+	this.length = 5;
 	this.segments = [];
 	this.direction = 'RIGHT';
 	this.init = function() {
-		Lazy.range(self.initialLength)
+		Lazy.range(snake.length)
 			.toArray()
 			.map(function(segment, index){
-				self.segments.push({
-					x: self.headX - (index * (self.segmentSize + 1)),
-					y: self.headY
+				snake.segments.push({
+					x: snake.headX - (index * (snake.segmentSize + 1)),
+					y: snake.headY
 				});
 			});
+	}
+	this.build = function(segments) {
+		
 	}
 }
 
 var snake = new Snake();
 snake.init();
-function update(dt) {
+function update(dt, snake) {
+	snake.head.x += snake.speed;
+	if (snake.head.x >= canvas.width ||
+		snake.head.x <= canvas.width ) {
+			snake.head = { x: 0, y: snake.head.y }
+	}
+	if ( snake.head.y >= canvas.height ||
+		 snake.head.y <= canvas.height ) {
+			snake.head = { x: snake.head.x, y: 0 }
+	}
 
+	}
+	snake.build();
 }
 function draw() {
 	ctx.fillStyle = 'black';
@@ -55,7 +77,7 @@ function mainLoop() {
    last = now;
    accumulator += passed;
    while (accumulator >= dt) {
-      update(dt);
+      update(dt, snake);
       accumulator -= dt;
    }
    draw();
