@@ -1,7 +1,7 @@
 var path = require('path');
 var webpack = require('webpack');
 module.exports = {
-    devtool: 'eval',
+    devtool: 'source-map',
     entry: [
         './src/js/app'
     ],
@@ -16,9 +16,9 @@ module.exports = {
             loader: 'babel-loader',
             include: path.join(__dirname, 'src')
         }, {
-            test: /\.less$/,
+            test: /\.css$/,
             loader: 'style!css!less',
-            include: path.join(__dirname, 'src')
+            include: path.join(__dirname, 'src/css')
         }]
     }
 };
