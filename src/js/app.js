@@ -72,11 +72,9 @@ SnakePit.game = function() {
 	    document.addEventListener('keydown', function (event) {
 	      let key = event.keyCode;
 	      let direction = controls[key];
-	      console.log(direction);
 
 	      if (direction) {
 	        snake.setDirection(direction);
-	        console.log(snake.direction);
 	        event.preventDefault();
 	      }
 	      else if (key === 32) {
@@ -121,7 +119,8 @@ SnakePit.snake = function() {
 	}
 	this.setDirection = function(newDirection) {
 	  let allowedDirections;
-
+	  console.log('oldDirection:', snake.direction);
+	  console.log('newDirection:', newDirection);
 	  //If snake is going left or right, only valid new directions
 	  //are up and down. Vice versa for up or down.
 	  switch (snake.direction) {
@@ -136,6 +135,7 @@ SnakePit.snake = function() {
 	  default:
 	    throw('Invalid direction');
 	  }
+	  console.log('newDirection allowed?', allowedDirections.indexOf(newDirection) > -1);
 	  if (allowedDirections.indexOf(newDirection) > -1) {
 	    snake.direction = newDirection;
 	  }
