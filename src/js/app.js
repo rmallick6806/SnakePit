@@ -1,6 +1,7 @@
 require('../css/app.css');
-import Lazy from 'lazy.js';
+// import Lazy from 'lazy.js';
 import FastList from 'fast-list';
+import _ from 'lodash';
 
 export const SnakePit = {};
 SnakePit.width = document.getElementById('snakePit').width;
@@ -15,9 +16,10 @@ SnakePit.game = function() {
 	// time-based animation: http://blog.sklambert.com/using-time-based-animation-implement/
 	let accumulator = 0;
 	let last = new Date().getTime();
-	let dt = 1000 / 60;  // constant dt step of 1 frame every 60 seconds
+	// let dt = 1000 / 60;  // constant dt step of 1 frame every 60 seconds
 	// snake object
 	let snake1 = new SnakePit.snake();
+	let gameRunning = true;
 
 	function init() {
 		bindEvents();
@@ -26,65 +28,67 @@ SnakePit.game = function() {
 	}
 
 	function update(dt, snake) {
-		let newSnakeHeadPosition;
-		switch (snake.direction) {
-			case 'RIGHT':
-				newSnakeHeadPosition = {
-					x: snake.head.x += snake.speed,
-					y: snake.head.y
-				};
-				break;
-			case 'LEFT':
-				newSnakeHeadPosition = {
-					x: snake.head.x -= snake.speed,
-					y: snake.head.y
-				}
-				break;
-			case 'UP':
-				newSnakeHeadPosition = {
-					x: snake.head.x,
-					y: snake.head.y -= snake.speed
-				}
-				break;
-			case 'DOWN':
-				newSnakeHeadPosition = {
-					x: snake.head.x,
-					y: snake.head.y += snake.speed
-				}
-				break;
-			default:
-				newSnakeHeadPosition = {
-					x: snake.head.x += snake.speed,
-					y: snake.head.y
-				};
-				break
+		advanceSnake(snake);
+		checkCollision(snake);
+
+	}
+
+	function advanceSnake( snake ) {
+		let newSnakeHeadPosition = {
+			x: snake.segments._head.data.x,
+			y: snake.segments._head.data.y
+		};
+		let vectors = {
+			RIGHT : { x: 1, y: 0 },
+			LEFT  : { x: -1, y: 0 },
+			UP    : { x: 0, y: -1 },
+			DOWN  : { x: 0, y: 1 }
+		};
+		let currentVector = vectors[snake.direction];
+		if ( currentVector ) {
+			newSnakeHeadPosition.x += (currentVector.x * snake.speed);
+			newSnakeHeadPosition.y += (currentVector.y * snake.speed);
 		}
 		snake.segments.unshift(newSnakeHeadPosition);
 		snake.segments.pop();
 	}
 
-	function draw() {
-		ctx.fillStyle = 'black';
-		ctx.fillRect(0,0, canvas.height, canvas.width);
+	function checkCollision(snake){
+		let head = snake.segments._head.data;
+		if ( head.x < 0 ||
+			 head.y < 0 ||
+			 head.x >= SnakePit.width - 9 ||
+			 head.y >= SnakePit.height - 9 ) {
+				gameRunning = false;
+		}
+	}
 
+	function draw() {
 		ctx.fillStyle = 'green';
 		snake1.segments.forEach(function(segment, index){
 			ctx.fillRect(segment.x, segment.y, snake1.segmentSize, snake1.segmentSize);
 		});
+	}
 
+	function clear() {
+		ctx.fillStyle = 'black';
+		ctx.fillRect(0,0, canvas.height, canvas.width);
 	}
 
 	function gameLoop() {
-	   var now = new Date().getTime();
-	   var passed = now - last;
-	   last = now;
-	   accumulator += passed;
-	   while (accumulator >= dt) {
-	      update(dt, snake1);
-	      accumulator -= dt;
-	   }
-	   draw();
+		if (!gameRunning) return;
 	   rAF(gameLoop);
+	   var now = new Date().getTime();
+	   var dt = now - last;
+	   last = now;
+	   // accumulator += dt;
+	   // while (accumulator >= dt) {
+	   //    update(dt, snake1);
+	   //    accumulator -= dt;
+	   // }
+	   update(dt, snake1);
+	   clear();
+	   draw();
 	}
 
 	function bindEvents() {
@@ -119,8 +123,8 @@ SnakePit.snake = function() {
 	let snake = this;
 	this.speed = 5;
 	this.head = {
-		x: SnakePit.width / 2,
-		y: SnakePit.height / 2
+		x: 50,
+		y: 0
 	};
 	this.segmentSize = 10;
 	this.length = 4;
@@ -128,8 +132,7 @@ SnakePit.snake = function() {
 	this.direction = 'RIGHT';
 	this.init = function() {
 		snake.segments.push(snake.head);
-		Lazy.range(snake.length)
-			.toArray()
+		_.range(snake.length)
 			.map(function(segment, index){
 				snake.segments.push({
 					x: snake.head.x - (index * (snake.segmentSize + 1)),
@@ -138,24 +141,16 @@ SnakePit.snake = function() {
 			});
 	}
 	this.setDirection = function(newDirection) {
-	  let allowedDirections;
-	  //If snake is going left or right, only valid new directions
-	  //are up and down. Vice versa for up or down.
-	  switch (snake.direction) {
-	  case 'LEFT':
-	  case 'RIGHT':
-	    allowedDirections = ['UP', 'DOWN'];
-	    break;
-	  case 'UP':
-	  case 'DOWN':
-	    allowedDirections = ['LEFT', 'RIGHT'];
-	    break;
-	  default:
-	    throw('Invalid direction');
-	  }
-	  if (allowedDirections.indexOf(newDirection) > -1) {
-	    snake.direction = newDirection;
-	  }
+  		let oppositeDirections = {
+		  	LEFT: 'RIGHT',
+		  	RIGHT: 'LEFT',
+		  	UP: 'DOWN',
+		  	DOWN: 'UP'
+	  	}
+
+  		if (newDirection !== oppositeDirections[snake.direction]) {
+	  		snake.direction = newDirection;
+	  	}
 	}
 }
 SnakePit.game().init();
