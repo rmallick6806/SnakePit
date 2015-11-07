@@ -30,6 +30,7 @@ SnakePit.game = function() {
 	function update(dt, snake) {
 		advanceSnake(snake);
 		checkCollision(snake);
+		checkSelfCollision(snake);
 
 	}
 
@@ -61,6 +62,15 @@ SnakePit.game = function() {
 			 head.y >= SnakePit.height - 9 ) {
 				gameRunning = false;
 		}
+	}
+
+	function checkSelfCollision(snake){
+		let head = snake.segments._head.data;
+		let selfCollide = snake.segments.reduce( (previousSegment, currentSegment, index, segments) => {
+			return true && (_.isEqual(previousSegment, currentSegment));
+		});
+		console.log(selfCollide);
+		if (selfCollide) gameRunning = false;
 	}
 
 	function draw() {
