@@ -1,6 +1,5 @@
 require('../css/app.css');
 // import Lazy from 'lazy.js';
-import FastList from 'fast-list';
 import _ from 'lodash';
 
 export const SnakePit = {};
@@ -12,14 +11,11 @@ SnakePit.game = function() {
 	// Create the canvas
 	let canvas = document.getElementById('snakePit');
 	let ctx = canvas.getContext("2d");
-	let rAF = window.requestAnimationFrame;
-	// time-based animation: http://blog.sklambert.com/using-time-based-animation-implement/
-	let accumulator = 0;
 	let last = new Date().getTime();
-	// let dt = 1000 / 60;  // constant dt step of 1 frame every 60 seconds
 	// snake object
 	let snake1 = new SnakePit.snake();
 	let gameRunning = true;
+	var cellWidth = 13;
 
 	function init() {
 		bindEvents();
@@ -27,35 +23,26 @@ SnakePit.game = function() {
 		gameLoop();
 	}
 
-	function update(dt, snake) {
-		advanceSnake(snake);
-		checkCollision(snake);
-		checkSelfCollision(snake);
-
-	}
-
-	function advanceSnake( snake ) {
-		let newSnakeHeadPosition = {
-			x: snake.segments._head.data.x,
-			y: snake.segments._head.data.y
-		};
+	function update(snake) {
 		let vectors = {
 			RIGHT : { x: 1, y: 0 },
 			LEFT  : { x: -1, y: 0 },
 			UP    : { x: 0, y: -1 },
 			DOWN  : { x: 0, y: 1 }
 		};
-		let currentVector = vectors[snake.direction];
-		if ( currentVector ) {
-			newSnakeHeadPosition.x += (currentVector.x * snake.speed);
-			newSnakeHeadPosition.y += (currentVector.y * snake.speed);
-		}
-		snake.segments.unshift(newSnakeHeadPosition);
-		snake.segments.pop();
-	}
 
-	function checkCollision(snake){
-		let head = snake.segments._head.data;
+		let currentVector = vectors[snake.direction];
+		if (currentVector) {
+			snake.segments[0].x += (currentVector.x );
+			snake.segments[0].y += (currentVector.y );
+		}
+		//Move snake
+		var tail = snake.segments.pop();
+		tail.x = snake.segments[0].x;
+		tail.y = snake.segments[0].y;
+		snake.segments.unshift(tail);
+
+		let head = snake.segments[0];
 		if ( head.x < 0 ||
 			 head.y < 0 ||
 			 head.x >= SnakePit.width - 9 ||
@@ -64,19 +51,13 @@ SnakePit.game = function() {
 		}
 	}
 
-	function checkSelfCollision(snake){
-		let head = snake.segments._head.data;
-		let selfCollide = snake.segments.reduce( (previousSegment, currentSegment, index, segments) => {
-			return true && (_.isEqual(previousSegment, currentSegment));
-		});
-		console.log(selfCollide);
-		if (selfCollide) gameRunning = false;
-	}
-
 	function draw() {
 		ctx.fillStyle = 'green';
+		ctx.strokeStyle = "white";
+
 		snake1.segments.forEach(function(segment, index){
-			ctx.fillRect(segment.x, segment.y, snake1.segmentSize, snake1.segmentSize);
+			ctx.fillRect(segment.x * cellWidth, segment.y * cellWidth, snake1.segmentSize, snake1.segmentSize);
+			ctx.strokeRect(segment.x * cellWidth, segment.y * cellWidth, snake1.segmentSize, snake1.segmentSize);
 		});
 	}
 
@@ -87,18 +68,10 @@ SnakePit.game = function() {
 
 	function gameLoop() {
 		if (!gameRunning) return;
-	   rAF(gameLoop);
-	   var now = new Date().getTime();
-	   var dt = now - last;
-	   last = now;
-	   // accumulator += dt;
-	   // while (accumulator >= dt) {
-	   //    update(dt, snake1);
-	   //    accumulator -= dt;
-	   // }
-	   update(dt, snake1);
+	   update(snake1);
 	   clear();
 	   draw();
+	   setTimeout(gameLoop, 60)
 	}
 
 	function bindEvents() {
@@ -115,11 +88,9 @@ SnakePit.game = function() {
 
 	      if (direction) {
 	        snake1.setDirection(direction);
-	        event.preventDefault();
 	      }
 	      else if (key === 32) {
-	        // restart();
-	        console.log('restart');
+	        gameRunning = false;
 	      }
 	    });
   	}
@@ -131,25 +102,21 @@ SnakePit.game = function() {
 // Game objects
 SnakePit.snake = function() {
 	let snake = this;
-	this.speed = 5;
+	this.speed = 1;
 	this.head = {
-		x: 50,
-		y: 0
+		x: 250,
+		y: 250
 	};
 	this.segmentSize = 10;
-	this.length = 4;
-	this.segments = new FastList();
+	this.length = 5;
+	this.segments = [];
 	this.direction = 'RIGHT';
-	this.init = function() {
-		snake.segments.push(snake.head);
-		_.range(snake.length)
-			.map(function(segment, index){
-				snake.segments.push({
-					x: snake.head.x - (index * (snake.segmentSize + 1)),
-					y: snake.head.y
-				});
-			});
-	}
+	this.init = function () {
+		for(var i = this.length - 1; i >= 0; i--){
+			snake.segments.push({x: 25 + i, y: 0});
+		}
+	};
+
 	this.setDirection = function(newDirection) {
   		let oppositeDirections = {
 		  	LEFT: 'RIGHT',
