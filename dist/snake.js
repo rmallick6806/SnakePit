@@ -146,6 +146,7 @@
 			let head = snake.segments._head.data;
 			if (_lodash2.default.isEqual(head, food.coordinates)) {
 				food.place();
+				if (SnakePit.fps < 60) SnakePit.fps += 1;
 				return true;
 			}
 		}
@@ -212,7 +213,7 @@
 		};
 		this.segmentSize = 10;
 		this.speed = 1;
-		this.length = 10;
+		this.length = 5;
 		this.segments = new _fastList2.default();
 		this.direction = 'RIGHT';
 		this.init = function () {
