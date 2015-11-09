@@ -82,6 +82,7 @@ SnakePit.game = function() {
 		let head = snake.segments._head.data;
 		if ( _.isEqual(head, food.coordinates) ) {
 			food.place();
+			if (SnakePit.fps < 60) SnakePit.fps += 1;
 			return true;
 		}
 	}
@@ -149,7 +150,7 @@ SnakePit.snake = function() {
 	};
 	this.segmentSize = 10;
 	this.speed = 1;
-	this.length = 10;
+	this.length = 5;
 	this.segments = new FastList;
 	this.direction = 'RIGHT';
 	this.init = function() {
