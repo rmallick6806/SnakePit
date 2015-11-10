@@ -76,7 +76,7 @@
 	canvas.width = 780;
 	
 	const SnakePit = exports.SnakePit = {};
-	SnakePit.fps = 8;
+	SnakePit.fps = 3;
 	SnakePit.cellWidth = 13;
 	
 	SnakePit.game = function () {
@@ -86,22 +86,22 @@
 		let food = new SnakePit.food();
 		// init snake object
 		let snake1 = new SnakePit.snake();
+		var gameTime = Date.now();
 	
 		function init() {
 			bindEvents();
 			snake1.init();
 			food.place();
-			console.log(food.coordinates.x, food.coordinates.y);
 			gameLoop();
 		}
 	
-		function update(snake) {
-			advanceSnake(snake);
+		function update(now, snake) {
+			advanceSnake(now, snake);
 			checkCollision(snake);
-			checkSelfCollision(snake);
+			//checkSelfCollision(snake);
 		}
 	
-		function advanceSnake(snake) {
+		function advanceSnake(now, snake) {
 			let newSnakeHeadPosition = {
 				x: snake.segments._head.data.x,
 				y: snake.segments._head.data.y
@@ -113,16 +113,20 @@
 				DOWN: { x: 0, y: 1 }
 			};
 			let currentVector = vectors[snake.direction];
-			if (currentVector) {
-				newSnakeHeadPosition.x += currentVector.x;
-				newSnakeHeadPosition.y += currentVector.y;
+			if (now % 3 <= 0) {
+				if (currentVector) {
+					newSnakeHeadPosition.x += currentVector.x;
+					newSnakeHeadPosition.y += currentVector.y;
+				}
+	
+				snake.segments.unshift(newSnakeHeadPosition);
+				if (checkFoodCollision(snake, food)) {
+					snake.length += 1;
+				} else {
+					snake.segments.pop();
+				}
 			}
-			snake.segments.unshift(newSnakeHeadPosition);
-			if (checkFoodCollision(snake, food)) {
-				snake.length += 1;
-			} else {
-				snake.segments.pop();
-			}
+			console.log(now);
 		}
 	
 		function checkCollision(snake) {
@@ -172,7 +176,11 @@
 	
 		function gameLoop() {
 			if (!gameRunning) return;
-			update(snake1);
+	
+			var now = Math.round(Date.now() / 50);
+			var delta = (now - then) / 1000;
+			var then = now;
+			update(now, snake1);
 			clear();
 			draw();
 			setTimeout(() => {
