@@ -14,6 +14,24 @@ app.get('/snake.js', function(req, res){
 });
 io.sockets.on('connection', function(socket){
     console.log('sockets connected');
+    let roomId;
+
+    let client = socket;
+
+    if ( roomId === undefined ) {
+    	roomId = Math.random() * 100000;
+    }
+
+    client.join(roomId.toString());
+    
+    client.emit('connected', { message: 'Player 1 arrived', mySocketId: client.id, gameId: roomId });
+
+    
+
+
+
 });
-server.listen(port);
+server.listen(port, () => {
+	console.log('server listening on port' + port);
+});
 module.exports = app;

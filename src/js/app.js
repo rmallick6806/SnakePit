@@ -1,6 +1,8 @@
 require('../css/app.css');
 import FastList from 'fast-list';
 import _ from 'lodash';
+import io from 'socket.io-client';
+const socket = io.connect();
 
 let canvas = document.getElementById('snakePit');
 let ctx = canvas.getContext("2d");
@@ -8,7 +10,6 @@ canvas.height = 780;
 canvas.width = 780;
 
 export const SnakePit = {};
-SnakePit.fps2 = 3;
 SnakePit.cellWidth = 13;
 
 SnakePit.game = function() {
@@ -22,7 +23,7 @@ SnakePit.game = function() {
 		y: 20,
 		speed: 6
 	});
-		let snake2 = new SnakePit.snake({
+	let snake2 = new SnakePit.snake({
 		x: 20,
 		y: 30,
 		speed: 6
@@ -94,7 +95,7 @@ SnakePit.game = function() {
 		let head = snake.segments._head.data;
 		if ( _.isEqual(head, food.coordinates) ) {
 			food.place();
-			if (SnakePit.fps < 60) snake.speed += 1;
+			snake.speed += 1;
 			return true;
 		}
 	}
@@ -228,5 +229,7 @@ SnakePit.food = function() {
 		food.coordinates.y = Math.floor(Math.random() * (canvas.height / SnakePit.cellWidth));
 	}
 };
-
+socket.on('connected', (data) => {
+	console.log(data.message, 'p1 id:', data.mySocketId);
+})
 SnakePit.game().init();
