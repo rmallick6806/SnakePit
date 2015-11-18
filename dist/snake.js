@@ -76,7 +76,6 @@
 	canvas.width = 780;
 	
 	const SnakePit = exports.SnakePit = {};
-	SnakePit.fps2 = 3;
 	SnakePit.cellWidth = 13;
 	
 	SnakePit.game = function () {
@@ -158,7 +157,7 @@
 			let head = snake.segments._head.data;
 			if (_lodash2.default.isEqual(head, food.coordinates)) {
 				food.place();
-				if (SnakePit.fps < 60) snake.speed += 1;
+				if (snake.speed < 60) snake.speed += 1;
 				return true;
 			}
 		}
