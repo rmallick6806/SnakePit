@@ -1,5 +1,6 @@
 import FastList from 'fast-list';
 import _ from 'lodash';
+import { oppositeDirections } from './utils';
 
 module.exports = function Snake(options) {
 	let snake = this;
@@ -12,6 +13,7 @@ module.exports = function Snake(options) {
 	this.length = 5;
 	this.segments = new FastList;
 	this.direction = 'RIGHT';
+	this.id = null;
 	this.init = function() {
 		_.range(snake.length)
 			.map(function(segment, index){
@@ -23,13 +25,6 @@ module.exports = function Snake(options) {
 	}
 
 	this.setDirection = function(newDirection) {
-  		let oppositeDirections = {
-		  	LEFT: 'RIGHT',
-		  	RIGHT: 'LEFT',
-		  	UP: 'DOWN',
-		  	DOWN: 'UP'
-	  	}
-
   		if (newDirection !== oppositeDirections[snake.direction]) {
 	  		snake.direction = newDirection;
 	  	}
