@@ -1,7 +1,7 @@
 require('../css/app.css');
-import FastList from 'fast-list';
-import _ from 'lodash';
 import io from 'socket.io-client';
+import _ from 'lodash';
+import { controlsMap } from './entities/utils';
 import Snake from './entities/snake';
 import Food from './entities/food';
 import Board from './entities/board';
@@ -17,100 +17,170 @@ const ctx = canvas.getContext("2d");
 canvas.height = 780;
 canvas.width = 780;
 
+
 export const SnakePit = {};
 
 SnakePit.game = function() {
 	let game = this;
+
 	// game configuration
 	this.running = true;
+	this.snakes = [];
+	this.pressed = {
+		LEFT: false,
+		RIGHT: false,
+		UP: false,
+		DOWN: false
+	};
+	let then = performance.now();
+	let lag = 0.0;
+	const MS_PER_UPDATE = 16;
+
+	// entities
 	let board = new Board();
 	let snake1 = new Snake({
 		x: 20,
 		y: 20,
-		speed: 6
+		speed: 10
 	});
 	let snake2 = new Snake({
 		x: 20,
-		y: 30,
-		speed: 6
-	});
+		y: 50,
+		speed: 5
+	})
+	this.snakes.push(snake1);
 	let food = new Food(canvas, board);
-	let gameTime = Date.now();
+	
+	socket.on('connected', (data) => {
+		console.log(data.message, 'p1 id:', data.mySocketId);
+		snake1.id = data.mySocketId;
+	});
 
 	function init() {
 		bindEvents();
-		snake1.init();
-		snake2.init();
+		_.forEach(game.snakes, (snake, index) => {
+			snake.init();
+		});
 		food.place();
-		gameLoop();
-		gameLoop2();
+		gameLoopP1();
+		// gameLoopP2();
+		renderLoop(); 
 	}
 
-	function update(now, snake) {
+	function update(snake) {
 		snake.advance(food);
 		snake.checkCollision(canvas, board, game);
 		snake.checkSelfCollision(game);
+		resetPressed();
 	}
 
-
-	function gameLoop() {
-		if (!game.running) return;
-
-		var now = Math.round(Date.now()/50);
-		var delta = (now - then)/1000;
-		var then = now;
-		update(now, snake1);
-	   	board.clear(ctx, canvas);
-	   	board.draw(ctx, snake1, snake2, food);
-	   	setTimeout( () => {
-	   		requestAnimationFrame(gameLoop);
-	   	}, 1000 / snake1.speed);
-	}
-
-	function gameLoop2() {
-		if (!game.running) return;
-
-		var now = Math.round(Date.now()/50);
-		var delta = (now - then)/1000;
-		var then = now;
-		update(now, snake2);
-	   	board.clear(ctx, canvas);
-	   	board.draw(ctx, snake1, snake2, food);
-	   	setTimeout( () => {
-	   		requestAnimationFrame(gameLoop);
-	   	}, 1000 / snake2.speed);
+	function render(canvas, ctx, snakes, food, delta) {
+		board.clear(canvas, ctx);
+		board.draw(ctx, snakes, food, delta);
 	}
 
 	function bindEvents() {
-		let controls = {
-			37: 'LEFT',
-			38: 'UP',
-			39: 'RIGHT',
-			40: 'DOWN'
-		}
 
-	    document.addEventListener('keydown', function (event) {
-	      let key = event.keyCode;
-	      let direction = controls[key];
+	    document.addEventListener('keydown', (e) => {
+      		let key = e.keyCode;
+	      	let direction = controlsMap[key];
 
 	      if (direction) {
-	        snake1.setDirection(direction);
-	        snake2.setDirection(direction);
+	        game.pressed[direction] = true;
 	      }
 	      else if (key === 32) {
 	        game.running = false;
 	      }
 	    });
   	}
+
+  	function resetPressed() {
+  		game.pressed = _.mapValues(game.pressed, (pressed) => {
+  			return pressed = false;
+  		});
+  	}
+
+  	function processInput(snake, index) {
+  		// console.log(`snake${index + 1} keyPressed:`, game.pressed);
+  		let newDirection = _.findKey(game.pressed, (pressed, direction) => {
+  			return game.pressed[direction] === true;
+  		});
+  		if (newDirection === undefined) {
+  			return;
+  		}
+		snake.setDirection(newDirection, game.pressed);
+  	}
+
+	function renderLoop() {
+		if (!game.running) return;
+   		
+   		requestAnimationFrame(renderLoop);
+   		console.log('renderLoop');
+		let now = performance.now();
+		let delta = now - then;
+		then = now;
+
+		lag += delta;
+
+		while ( lag >= MS_PER_UPDATE ) {
+			render(canvas, ctx, game.snakes, food, 10);
+			// processInput(snake1);
+			// update(snake1);
+			lag -= MS_PER_UPDATE
+		}
+
+		// let renderWindow = Math.round((lag / MS_PER_UPDATE) * 100);
+
+	}
+
+	function gameLoopP1() {
+		if (!game.running) return;
+		let snake = game.snakes[0]
+	   	setTimeout( () => {
+	   		requestAnimationFrame(gameLoopP1);
+	   	}, 1000 / snake.speed);
+	   	console.log('gameLoopP1');
+		// var now = Math.round(Date.now()/50);
+		// var delta = (now - then)/1000;
+		// var then = now;
+		// _.forEach(game.snakes, (snake, index) => {
+			processInput(snake, 0);
+		// });
+		// _.forEach(game.snakes, (snake, index) => {
+			update(snake);
+		// });
+
+		// render(canvas, ctx, game.snakes, food, 10);
+	}
+
+	// function gameLoopP2() {
+	// 	if (!game.running) return;
+	// 	let snake = game.snakes[1]
+	//    	setTimeout( () => {
+	//    		requestAnimationFrame(gameLoopP2);
+	//    	}, 1000 / snake.speed);
+	//    	console.log('gameLoopP2');
+	// 	// var now = Math.round(Date.now()/50);
+	// 	// var delta = (now - then)/1000;
+	// 	// var then = now;
+	// 	// _.forEach(game.snakes, (snake, index) => {
+	// 		processInput(snake, 1);
+	// 	// });
+	// 	// _.forEach(game.snakes, (snake, index) => {
+	// 		update(snake);
+	// 	// });
+
+	// 	// render(canvas, ctx, game.snakes, food, 10);
+	// }
+
   	return {
   		init: init
   	}
 };
 
-// socket.on('connected', (data) => {
-// 	console.log(data.message, 'p1 id:', data.mySocketId);
-// 	SnakePit.p1.id = data.mySocketId;
-// });
+
+
+SnakePit.game().init();
 
 // p1Btn.addEventListener('click', (e) => {
 // 	e.preventDefault();
@@ -121,4 +191,3 @@ SnakePit.game = function() {
 // 	e.preventDefault();
 // 	socket.emit('p1Join', { p1: SnakePit.p1.id });
 // });
-SnakePit.game().init();
