@@ -7489,8 +7489,7 @@
 			_lodash2.default.range(snake.length).map(function (segment, index) {
 				snake.segments.push({
 					x: snake.head.x - index,
-					y: snake.head.y,
-					direction: snake.direction
+					y: snake.head.y
 				});
 			});
 		};
