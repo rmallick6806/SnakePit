@@ -7483,7 +7483,6 @@
 		this.speed = options.speed;
 		this.length = 5;
 		this.segments = new _fastList2.default();
-		this.pivots = [];
 		this.direction = 'RIGHT';
 		this.id = null;
 		this.init = function () {
@@ -7497,11 +7496,9 @@
 		};
 	
 		this.setDirection = function (newDirection) {
-	
 			if (newDirection !== _utils.oppositeDirections[snake.direction]) {
 				snake.direction = newDirection;
 			}
-			console.log(snake.direction);
 		};
 	
 		this.advance = food => {
