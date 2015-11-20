@@ -17,18 +17,8 @@ io.sockets.on('connection', function(socket){
     let roomId;
 
     let client = socket;
-
-    if ( roomId === undefined ) {
-    	roomId = Math.random() * 100000;
-    }
-
-    client.join(roomId.toString());
     
-    client.emit('connected', { message: 'Player 1 arrived', mySocketId: client.id, gameId: roomId });
-
-    
-
-
+    client.emit('connected', { message: 'Player arrived', mySocketId: client.id });
 
 });
 server.listen(port, () => {
