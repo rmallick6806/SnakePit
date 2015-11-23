@@ -41,14 +41,14 @@ SnakePit.game = function() {
 	let snake1 = new Snake({
 		x: 20,
 		y: 20,
-		speed: 10
+		speed: 5
 	});
 	let snake2 = new Snake({
 		x: 20,
 		y: 50,
 		speed: 5
 	})
-	this.snakes.push(snake1);
+	this.snakes.push(snake1, snake2);
 	let food = new Food(canvas, board);
 	
 	socket.on('connected', (data) => {
@@ -63,7 +63,7 @@ SnakePit.game = function() {
 		});
 		food.place();
 		gameLoopP1();
-		// gameLoopP2();
+		gameLoopP2();
 		renderLoop(); 
 	}
 
@@ -153,25 +153,25 @@ SnakePit.game = function() {
 		// render(canvas, ctx, game.snakes, food, 10);
 	}
 
-	// function gameLoopP2() {
-	// 	if (!game.running) return;
-	// 	let snake = game.snakes[1]
-	//    	setTimeout( () => {
-	//    		requestAnimationFrame(gameLoopP2);
-	//    	}, 1000 / snake.speed);
-	//    	console.log('gameLoopP2');
-	// 	// var now = Math.round(Date.now()/50);
-	// 	// var delta = (now - then)/1000;
-	// 	// var then = now;
-	// 	// _.forEach(game.snakes, (snake, index) => {
-	// 		processInput(snake, 1);
-	// 	// });
-	// 	// _.forEach(game.snakes, (snake, index) => {
-	// 		update(snake);
-	// 	// });
+	function gameLoopP2() {
+		if (!game.running) return;
+		let snake = game.snakes[1]
+	   	setTimeout( () => {
+	   		requestAnimationFrame(gameLoopP2);
+	   	}, 1000 / snake.speed);
+	   	console.log('gameLoopP2');
+		// var now = Math.round(Date.now()/50);
+		// var delta = (now - then)/1000;
+		// var then = now;
+		// _.forEach(game.snakes, (snake, index) => {
+			processInput(snake, 1);
+		// });
+		// _.forEach(game.snakes, (snake, index) => {
+			update(snake);
+		// });
 
-	// 	// render(canvas, ctx, game.snakes, food, 10);
-	// }
+		// render(canvas, ctx, game.snakes, food, 10);
+	}      
 
   	return {
   		init: init
