@@ -101,7 +101,6 @@ SnakePit.game = function() {
   	}
 
   	function processInput(snake, index) {
-  		// console.log(`snake${index + 1} keyPressed:`, game.pressed);
   		let newDirection = _.findKey(game.pressed, (pressed, direction) => {
   			return game.pressed[direction] === true;
   		});
@@ -124,12 +123,8 @@ SnakePit.game = function() {
 
 		while ( lag >= MS_PER_UPDATE ) {
 			render(canvas, ctx, game.snakes, food, 10);
-			// processInput(snake1);
-			// update(snake1);
 			lag -= MS_PER_UPDATE
 		}
-
-		// let renderWindow = Math.round((lag / MS_PER_UPDATE) * 100);
 
 	}
 
@@ -140,17 +135,9 @@ SnakePit.game = function() {
 	   		requestAnimationFrame(gameLoopP1);
 	   	}, 1000 / snake.speed);
 	   	console.log('gameLoopP1');
-		// var now = Math.round(Date.now()/50);
-		// var delta = (now - then)/1000;
-		// var then = now;
-		// _.forEach(game.snakes, (snake, index) => {
 			processInput(snake, 0);
-		// });
-		// _.forEach(game.snakes, (snake, index) => {
 			update(snake);
-		// });
 
-		// render(canvas, ctx, game.snakes, food, 10);
 	}
 
 	function gameLoopP2() {
@@ -160,17 +147,8 @@ SnakePit.game = function() {
 	   		requestAnimationFrame(gameLoopP2);
 	   	}, 1000 / snake.speed);
 	   	console.log('gameLoopP2');
-		// var now = Math.round(Date.now()/50);
-		// var delta = (now - then)/1000;
-		// var then = now;
-		// _.forEach(game.snakes, (snake, index) => {
 			processInput(snake, 1);
-		// });
-		// _.forEach(game.snakes, (snake, index) => {
 			update(snake);
-		// });
-
-		// render(canvas, ctx, game.snakes, food, 10);
 	}      
 
   	return {

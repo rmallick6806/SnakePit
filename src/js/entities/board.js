@@ -17,15 +17,6 @@ module.exports = function Board() {
 
 		})
 
-		// ctx.fillStyle = 'blue';
-		// ctx.strokeStyle = "white";
-
-		// snake2.segments.forEach(function(segment, index){
-		// 	ctx.fillRect(segment.x * board.cellWidth, segment.y * board.cellWidth, snake2.segmentSize, snake2.segmentSize);
-		// 	ctx.strokeRect(segment.x * board.cellWidth, segment.y * board.cellWidth, snake2.segmentSize, snake2.segmentSize);
-		// });
-
-
 		ctx.fillStyle = 'red';
 		ctx.fillRect(food.coordinates.x * board.cellWidth, food.coordinates.y * board.cellWidth, 10, 10);
 		ctx.strokeRect(food.coordinates.x * board.cellWidth, food.coordinates.y * board.cellWidth, 10, 10);
