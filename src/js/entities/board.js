@@ -8,7 +8,7 @@ module.exports = function Board() {
     ctx.strokeStyle = "white";
 
     _.forEach(snakes, (snake, playerIndex) => {
-      let snakeColor = playerIndex === 0 ? 'green' : 'blue';
+      let snakeColor = (playerIndex === 0) ? 'green' : 'blue';
       ctx.fillStyle = snakeColor;
       snake.segments.forEach((segment, segmentIndex) => {
         ctx.fillRect(segment.x * board.cellWidth, segment.y * board.cellWidth, snake.segmentSize, snake.segmentSize);
